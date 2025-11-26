@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
         cb(null, uploadsDir);
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const uniqueSuffix = crypto.randomUUID();
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
@@ -57,10 +58,30 @@ app.use(express.json());
 // Store connected users
 const users = new Map();
 
+// Secure password comparison to prevent timing attacks
+function secureCompare(a, b) {
+    if (typeof a !== 'string' || typeof b !== 'string') {
+        return false;
+    }
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) {
+        // Use timingSafeEqual with padded buffers to maintain constant time
+        const maxLen = Math.max(bufA.length, bufB.length);
+        const paddedA = Buffer.alloc(maxLen);
+        const paddedB = Buffer.alloc(maxLen);
+        bufA.copy(paddedA);
+        bufB.copy(paddedB);
+        crypto.timingSafeEqual(paddedA, paddedB);
+        return false;
+    }
+    return crypto.timingSafeEqual(bufA, bufB);
+}
+
 // API endpoint to verify password
 app.post('/api/verify-password', (req, res) => {
     const { password } = req.body;
-    if (password === CHAT_PASSWORD) {
+    if (secureCompare(password, CHAT_PASSWORD)) {
         res.json({ success: true });
     } else {
         res.status(401).json({ success: false, message: 'Invalid password' });
@@ -84,8 +105,8 @@ io.on('connection', (socket) => {
     socket.on('join', (data) => {
         const { username, password } = data;
         
-        // Verify password
-        if (password !== CHAT_PASSWORD) {
+        // Verify password using secure comparison
+        if (!secureCompare(password, CHAT_PASSWORD)) {
             socket.emit('error', { message: 'Invalid password' });
             return;
         }
@@ -175,5 +196,4 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
     console.log(`Chat server running on http://localhost:${PORT}`);
-    console.log(`Chat password: ${CHAT_PASSWORD}`);
 });

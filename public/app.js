@@ -136,9 +136,15 @@ function addImageMessage(data) {
             <span class="message-time">${time}</span>
         </div>
         <div class="message-content">
-            <img src="${escapeHtml(data.imageUrl)}" alt="Shared image" class="message-image" onclick="openImageModal('${escapeHtml(data.imageUrl)}')">
+            <img src="${escapeHtml(data.imageUrl)}" alt="Shared image" class="message-image">
         </div>
     `;
+    
+    // Add click event listener for the image
+    const img = div.querySelector('.message-image');
+    img.addEventListener('click', function() {
+        openImageModal(data.imageUrl);
+    });
     
     messagesDiv.appendChild(div);
     scrollToBottom();
@@ -203,9 +209,9 @@ loginForm.addEventListener('submit', async (e) => {
         return;
     }
     
-    // Validate username (alphanumeric and basic characters only)
-    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-        loginError.textContent = 'Username can only contain letters, numbers, underscores, and hyphens';
+    // Validate username (alphanumeric, must start and end with alphanumeric)
+    if (!/^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$/.test(username) && !/^[a-zA-Z0-9]$/.test(username)) {
+        loginError.textContent = 'Username must start and end with a letter or number, and can contain underscores and hyphens';
         return;
     }
     
@@ -315,6 +321,3 @@ document.addEventListener('keydown', (e) => {
         closeImageModal();
     }
 });
-
-// Make openImageModal globally available
-window.openImageModal = openImageModal;
