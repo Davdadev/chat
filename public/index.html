@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <h1>Welcome to Chat Room</h1>
+            <p>Enter your username and the chat password to join</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="password">Chat Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter chat password" required>
+                </div>
+                <button type="submit" class="btn-primary">Join Chat</button>
+            </form>
+            <p id="login-error" class="error-message"></p>
+        </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chat-screen" class="screen">
+        <div class="chat-container">
+            <!-- Header -->
+            <div class="chat-header">
+                <h2>Chat Room</h2>
+                <div class="header-info">
+                    <span id="current-user"></span>
+                    <button id="logout-btn" class="btn-secondary">Leave</button>
+                </div>
+            </div>
+
+            <!-- Main Chat Area -->
+            <div class="chat-main">
+                <!-- Users Sidebar -->
+                <div class="users-sidebar">
+                    <h3>Online Users</h3>
+                    <ul id="users-list"></ul>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="messages-container">
+                    <div id="messages" class="messages"></div>
+                    <div id="typing-indicator" class="typing-indicator"></div>
+                    
+                    <!-- Message Input -->
+                    <div class="message-input-container">
+                        <form id="message-form">
+                            <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+                            <label for="image-input" class="image-upload-btn" title="Send Image">
+                                📷
+                            </label>
+                            <input type="file" id="image-input" accept="image/*" hidden>
+                            <button type="submit" class="btn-send">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="image-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <img id="modal-image" src="" alt="Full size image">
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
